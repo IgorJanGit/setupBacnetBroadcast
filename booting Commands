@@ -1,0 +1,49 @@
+10.0.2.15 fec0::b38e:4ca7:c01a:831e fec0::5054:ff:fe12:3456
+
+
+
+
+
+
+
+BACnet scanner 
+
+qemu-system-x86_64 -m 4096 -smp 4 -cpu host -machine type=pc,accel=kvm -hda /mnt/c/mintVM/mintVM.qcow2 -netdev user,id=net0 -device e1000,netdev=net0 -netdev socket,id=net1,listen=:1234 -device e1000,netdev=net1 -boot c -vga virtio -usb -device usb-mouse -device usb-kbd
+
+BACnet devices simulator 
+
+to installl
+
+ qemu-system-x86_64   -m 4096 -smp 2 -cpu host -machine type=pc,accel=kvm   -cdrom "/mnt/c/Users/jano844/Downloads/ubuntu-24.04.3-desktop-amd64 (1).iso"   -hda /mnt/c/mintVM/bacnet_device.qcow2   -boot d   -netdev user,id=net0 -device e1000,netdev=net0   -vga virtio   -usb -device usb-mouse -device usb-kbd
+
+to reboot
+
+qemu-system-x86_64 \
+  -m 4096 -smp 2 -cpu host -machine type=pc,accel=kvm \
+  -hda /mnt/c/mintVM/bacnet_device.qcow2 \
+  -boot c \
+  -netdev user,id=net0 -device e1000,netdev=net0 \
+  -vga virtio \
+  -usb -device usb-mouse -device usb-kbd
+
+
+bacnet scanner 
+
+qemu-system-x86_64 \
+  -m 4096 -smp 2 -cpu host -machine type=pc,accel=kvm \
+  -hda /mnt/c/mintVM/bacnet_device.qcow2 \
+  -boot c \
+  -netdev user,id=net0 -device e1000,netdev=net0 \
+  -netdev socket,id=net1,connect=127.0.0.1:1234 -device e1000,netdev=net1 \
+  -vga virtio \
+  -usb -device usb-mouse -device usb-kbd
+
+
+qemu-system-x86_64 \
+  -m 4096 -smp 2 -cpu host -machine type=pc,accel=kvm \
+  -hda /mnt/c/mintVM/bacnet_device.qcow2 \
+  -boot c \
+  -netdev user,id=net0 -device e1000,netdev=net0 \
+  -netdev socket,id=net1,connect=127.0.0.1:1234 -device e1000,netdev=net1 \
+  -vga virtio \
+  -usb -device usb-mouse -device usb-kbd
