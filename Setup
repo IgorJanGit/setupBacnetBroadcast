@@ -19,8 +19,7 @@ All repositories should be cloned into a shared working directory:
 
 ### ✅ 1. Clone Required Repositories
 
-`# Clone the main app repository git clone -b develop https://github.com/riley206-pnnl/eclipse-bacnet-scan-tool.git  # Clone the supporting protocol-proxy repo (custom fork or original) git clone -b bacnet-async-upgrade https://github.com/IgorJanGit/lib-protocol-proxy.git  # Clone the BACnet-specific proxy repo git clone https://github.com/riley206-pnnl/lib-protocol-proxy-bacnet.git`
-                                git clone -b bus_adapter_changes  https://github.com/riley206-pnnl/lib-protocol-proxy-fixed.git
+`#                              git clone -b bus_adapter_changes  https://github.com/riley206-pnnl/lib-protocol-proxy-fixed.git
                                 git clone -b  develop https://github.com/riley206-pnnl/eclipse-bacnet-scan-tool.git
                                 git clone  -b cov_and_driver_intergration https://github.com/riley206-pnnl/lib-protocol-proxy-bacnet-fixed.git
 ---
