@@ -1,0 +1,107 @@
+
+
+
+### 📄 Eclipse BACnet Scan Tool – Local Setup Instructions
+
+> This guide outlines the steps for setting up the `eclipse-bacnet-scan-tool` and its dependencies using Poetry in a clean local environment.
+
+---
+
+## 📁 Folder Layout
+
+All repositories should be cloned into a shared working directory:
+
+`~/Work/Volttron_eclispe/bacnet/ ├── eclipse-bacnet-scan-tool ├── lib-protocol-proxy └── lib-protocol-proxy-bacnet`
+
+---
+
+## 🔁 Step-by-Step Instructions
+
+### ✅ 1. Clone Required Repositories
+
+`# Clone the main app repository git clone -b develop https://github.com/riley206-pnnl/eclipse-bacnet-scan-tool.git  # Clone the supporting protocol-proxy repo (custom fork or original) git clone -b bacnet-async-upgrade https://github.com/IgorJanGit/lib-protocol-proxy.git  # Clone the BACnet-specific proxy repo git clone https://github.com/riley206-pnnl/lib-protocol-proxy-bacnet.git`
+                                git clone -b bus_adapter_changes  https://github.com/riley206-pnnl/lib-protocol-proxy-fixed.git
+                                git clone -b  develop https://github.com/riley206-pnnl/eclipse-bacnet-scan-tool.git
+                                git clone  -b cov_and_driver_intergration https://github.com/riley206-pnnl/lib-protocol-proxy-bacnet-fixed.git
+---
+
+### ✅ 2. Navigate into Project
+
+`cd ~/Work/Volttron_eclispe/bacnet/eclipse-bacnet-scan-tool`
+
+---
+
+### ✅ 3. Set Up Virtual Environment with Poetry
+
+`# Check Poetry is installed poetry --version  # Activate a virtual environment poetry env use python3.10 poetry shell`
+
+If needed, you can activate manually:
+
+`source $(poetry env info --path)/bin/activate`
+
+---
+
+### ✅ 4. Update `pyproject.toml` to Use Local Dependency
+
+Open the file:
+
+`nano pyproject.toml`
+
+And **replace** the Git dependency line with a local path:
+
+`protocol-proxy = { path = "../lib-protocol-proxy" }`
+
+Make sure to comment out or remove any conflicting Git-based lines.
+
+---
+
+### ✅ 5. Install Dependencies
+
+`poetry install`
+
+This will install all required dependencies listed in `pyproject.toml`, including your local `lib-protocol-proxy`.
+
+---
+
+### ✅ 6. Verify the Dependency Works
+
+Check if this file exists:
+
+`ls ../lib-protocol-proxy/protocol_proxy/bacnet_manager.py`
+
+If it does not, make sure you’re on the correct branch:
+
+`cd ../lib-protocol-proxy git checkout bacnet-async-upgrade git pull`
+
+Then return to the main project folder:
+
+`cd ../eclipse-bacnet-scan-tool`
+
+---
+
+### ✅ 7. Run the Application
+
+`poetry run uvicorn bacnet_scan_tool.main:app --reload`
+
+You should see output like:
+
+`Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)`
+
+Now open in your browser:
+
+- Swagger UI: http://127.0.0.1:8000/docs
+    
+- ReDoc: http://127.0.0.1:8000/redoc
+    
+
+---
+
+## ✅ Extra Notes
+
+- To deactivate the virtual environment:
+    
+    `deactivate`
+    
+- If `uvicorn` is not found, ensure it’s listed in `pyproject.toml` and run:
+    
+    `poetry add uvicorn`
