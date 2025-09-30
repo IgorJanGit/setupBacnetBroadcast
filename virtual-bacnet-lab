@@ -1,0 +1,93 @@
+✅ Command to Start: BACnet Device Simulator (Listener)
+qemu-system-x86_64 \
+  -m 4096 -smp 2 -cpu host \
+  -machine type=pc,accel=kvm \
+  -hda /mnt/c/mintVM/bacnet_device.qcow2 \
+  -boot c \
+  -netdev user,id=net0 -device e1000,netdev=net0 \
+  -netdev socket,id=net1,listen=:1234 -device e1000,netdev=net1 \
+  -vga virtio \
+  -usb -device usb-mouse -device usb-kbd \
+  -name "BACnet Device Simulator"
+
+✅ Command to Start: BACnet Scanner (Connector)
+qemu-system-x86_64 \
+  -m 4096 -smp 2 -cpu host \
+  -machine type=pc,accel=kvm \
+  -hda /mnt/c/mintVM/scanner.qcow2 \
+  -boot c \
+  -netdev user,id=net0 -device e1000,netdev=net0 \
+  -netdev socket,id=net1,connect=127.0.0.1:1234 -device e1000,netdev=net1 \
+  -vga virtio \
+  -usb -device usb-mouse -device usb-kbd \
+  -name "BACnet Scanner"
+
+
+
+✅ QEMU BACnet VM Setup – Internal Networking Checklist
+🖥️ 1. Start VMs in the Correct Order
+
+Start BACnet Device (listener):
+
+./start_device.sh
+
+
+Then start BACnet Scanner (connector):
+
+./start_scanner.sh
+
+🔍 2. Inside Each VM: Identify the Internal Interface
+ip a
+
+
+Look for the second Ethernet interface (usually ens4).
+
+🛠️ 3. Assign Static IPs to Internal Interfaces
+📡 On BACnet Device VM:
+sudo ip addr add 192.168.100.2/24 dev ens4
+sudo ip link set ens4 up
+
+📡 On BACnet Scanner VM:
+sudo ip addr add 192.168.100.3/24 dev ens4
+sudo ip link set ens4 up
+
+🔁 4. Test the Internal Connection
+
+From the Scanner VM, run:
+
+ping 192.168.100.2
+
+
+You should see ICMP replies from the Device VM.
+
+♻️ 5. (Optional) Automate Internal IPs on Boot
+Ubuntu (Netplan):
+
+Create a config file:
+
+sudo nano /etc/netplan/99-internal.yaml
+
+
+Paste the following (on BACnet Device VM):
+
+network:
+  version: 2
+  ethernets:
+    ens4:
+      dhcp4: no
+      addresses: [192.168.100.2/24]
+
+
+Or use this on Scanner VM:
+
+network:
+  version: 2
+  ethernets:
+    ens4:
+      dhcp4: no
+      addresses: [192.168.100.3/24]
+
+
+Apply changes:
+
+sudo netplan apply
