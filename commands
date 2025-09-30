@@ -1,0 +1,30 @@
+✅ 2. Register the BACnet Proxy
+
+Replace the IP below (192.168.100.3) with the scanner VM's internal IP if different:
+
+curl -X POST http://localhost:8000/start_proxy \
+  -H "accept: application/json" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d local_device_address=192.168.100.3
+
+✅ 3. Unicast Discovery (Direct to Device)
+
+Assuming the simulated device is at 192.168.100.2:
+
+curl -X POST http://localhost:8000/bacnet/who_is \
+  -H "accept: application/json" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d device_instance_low=0 \
+  -d device_instance_high=4194303 \
+  -d dest=192.168.100.2
+
+✅ 4. Broadcast Discovery (to all BACnet devices on subnet)
+
+Use .255 broadcast address for your /24 subnet:
+
+curl -X POST http://localhost:8000/bacnet/who_is \
+  -H "accept: application/json" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d device_instance_low=0 \
+  -d device_instance_high=4194303 \
+  -d dest=192.168.100.255
