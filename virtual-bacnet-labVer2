@@ -1,0 +1,104 @@
+BACnet QEMU Lab (Simulated Network for BACnet Devices & Scanner)
+
+Simulate and test BACnet communication between virtual devices using QEMU VMs with internal socket-based networking.
+
+📁 Folder Structure
+/mnt/c/mintVM/
+├── bacnet_device.qcow2     # Simulated BACnet device VM
+├── scanner.qcow2           # Scanner VM (created as a copy)
+├── mintVM.qcow2            # Optional: base Mint VM
+├── mintVM_clone.qcow2      # Optional: another cloned VM
+
+🛠️ 0. Create the Scanner VM Disk (if not already created)
+
+If you only have bacnet_device.qcow2, clone it:
+
+cp /mnt/c/mintVM/bacnet_device.qcow2 /mnt/c/mintVM/scanner.qcow2
+
+
+This gives you two separate VMs for simulation.
+
+🖥️ 1. Start the VMs
+✅ Start BACnet Device (Listener)
+qemu-system-x86_64 \
+  -m 4096 -smp 2 -cpu host \
+  -machine type=pc,accel=kvm \
+  -hda /mnt/c/mintVM/bacnet_device.qcow2 \
+  -boot c \
+  -netdev user,id=net0 -device e1000,netdev=net0 \
+  -netdev socket,id=net1,listen=:1234 -device e1000,netdev=net1 \
+  -vga virtio \
+  -usb -device usb-mouse -device usb-kbd \
+  -name "BACnet Device Simulator"
+
+✅ Start BACnet Scanner (Connector)
+qemu-system-x86_64 \
+  -m 4096 -smp 2 -cpu host \
+  -machine type=pc,accel=kvm \
+  -hda /mnt/c/mintVM/scanner.qcow2 \
+  -boot c \
+  -netdev user,id=net0 -device e1000,netdev=net0 \
+  -netdev socket,id=net1,connect=127.0.0.1:1234 -device e1000,netdev=net1 \
+  -vga virtio \
+  -usb -device usb-mouse -device usb-kbd \
+  -name "BACnet Scanner"
+
+
+⚠️ Start the device simulator first, then the scanner.
+
+🔧 2. Configure Internal Network Inside Each VM
+🔍 Identify Internal Interface (usually ens4):
+ip a
+
+
+Look for the second interface (e.g., ens4 or eth1) with no IP assigned.
+
+🛠️ Assign Static IPs
+📡 On BACnet Device VM:
+sudo ip addr add 192.168.100.2/24 dev ens4
+sudo ip link set ens4 up
+
+📡 On Scanner VM:
+sudo ip addr add 192.168.100.3/24 dev ens4
+sudo ip link set ens4 up
+
+🧪 3. Test Internal Connectivity
+
+From the Scanner VM, run:
+
+ping 192.168.100.2
+
+
+You should see successful replies.
+
+♻️ 4. (Optional) Auto-Assign Internal IPs at Boot (Netplan)
+Edit or create Netplan config:
+sudo nano /etc/netplan/99-internal.yaml
+
+📡 For BACnet Device:
+network:
+  version: 2
+  ethernets:
+    ens4:
+      dhcp4: no
+      addresses: [192.168.100.2/24]
+
+📡 For Scanner:
+network:
+  version: 2
+  ethernets:
+    ens4:
+      dhcp4: no
+      addresses: [192.168.100.3/24]
+
+
+Then apply changes:
+
+sudo netplan apply
+
+🖥️ 5. Change Hostname (Optional but Recommended)
+
+To avoid confusion between the two VMs, change hostname:
+
+sudo hostnamectl set-hostname bacnet-scanner   # or bacnet-device
+sudo reboot
